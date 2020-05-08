@@ -13,8 +13,88 @@
         </form>
       </div>
       <div class="card-footer">
+        <div class="location-info">
+          <p class="center">You are currently at:</p>
+          <p class="teal-text center">{{ location }}</p>
+        </div>
+      </div>
+      <div class="card-footer" >
+        <p class="teal-text center">Report for your location:</p>
         <div class="weather-report">
-          <div class="map"></div>
+          <table class="striped">
+            <thead>
+              <tr>
+                  <th>Key</th>
+                  <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Date</td>
+                <td>{{ weather.dt }}</td>
+              </tr>
+              <tr>
+                <td>Weather</td>
+                <td>{{ weather.weather[0].main }} - {{ weather.weather[0].description }}</td>
+              </tr>
+              <tr>
+                <td>City</td>
+                <td>{{ weather.name }}</td>
+              </tr>
+              <tr>
+                <td>Country</td>
+                <td>{{ weather.sys.country }}</td>
+              </tr>
+              <tr>
+                <td>Sunrise</td>
+                <td>{{ weather.sys.sunrise }}</td>
+              </tr>
+              <tr>
+                <td>Sunset</td>
+                <td>{{ weather.sys.sunset }}</td>
+              </tr>
+              <tr>
+                <td>Temerature</td>
+                <td>{{ weather.main.temp }}</td>
+              </tr>
+              <tr>
+                <td>Feels Like</td>
+                <td>{{ weather.main.feels_like }}</td>
+              </tr>
+              <tr>
+                <td>Min Temperature</td>
+                <td>{{ weather.main.temp_min }}</td>
+              </tr>
+              <tr>
+                <td>Max Temperature</td>
+                <td>{{ weather.main.temp_max }}</td>
+              </tr>
+              <tr>
+                <td>Pressure</td>
+                <td>{{ weather.main.pressure }}</td>
+              </tr>
+              <tr>
+                <td>Humidity</td>
+                <td>{{ weather.main.humidity }}</td>
+              </tr>
+              <tr>
+                <td>Sea Level</td>
+                <td>{{ weather.main.sea_level }} m</td>
+              </tr>
+              <tr>
+                <td>Ground Level</td>
+                <td>{{ weather.main.grnd_level }} m</td>
+              </tr>
+              <tr>
+                <td>Wind Speed</td>
+                <td>{{ weather.wind.speed }}</td>
+              </tr>
+              <tr>
+                <td>Wind Direction</td>
+                <td>{{ weather.wind.deg }} degree</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -29,10 +109,11 @@ export default {
   data() {
     return {
       city: null,
-      apiKey : `ee3bba6819aef1d1483bc23374dd04a6`,
+      apiKey : `ee3bba6819aef1d1483bc23374dd04a6`, // Api key for open weather
       lat: null,
       lng: null,
-      apiUrl : `https://api.openweathermap.org/data/2.5/weather?lat=${this.lat}&lon=${this.lng}&appid=${this.apiKey}`
+      location: null,
+      weather: null
     }
   },
   created() {
@@ -46,17 +127,21 @@ export default {
         // Getting weather data
         axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${this.apiKey}`)
         .then(response => {
-          console.log(response.data)
+          this.weather = response.data
         })
         .catch(err => {
           console.log(err.message)
         })
 
-        // Showing the Location on the map
-        let latlon = this.lat + ',' + this.lng
-        let img_url = "https://maps.googleapis.com/maps/api/staticmap?center="+latlon+"&zoom=14&size=400x300&sensor=false&key=YOUR_KEY";
+        // Showing the Location name
+        axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${this.lat}+${this.lng}&key=3ffd64246ea74371ad9476adabd3c0a4`)
+        .then(response => {
+          this.location = response.data.results[0].formatted
+        })
+        .catch(err => {
+          console.log(err.message)
+        })
 
-        document.getElementById("mapholder").innerHTML = "<img src='"+img_url+"'>"
       })
     } else {
       alert("Could not get Location. Please Try again.")
@@ -72,16 +157,16 @@ export default {
 }
 
 .home .card {
-  padding: 10px 3%;
   max-width: 600px;
+  min-width: 300px;
 }
 
 .home h2 {
   font-size: 2em;
 }
 
-.home .map {
-  width: 300px;
-  height: 200px;
+.home .card-footer {
+  border-bottom: 1px solid #d4d9d1;
+  padding: 10px 4%;
 }
 </style>
