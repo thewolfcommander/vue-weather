@@ -5,10 +5,11 @@
         <h2 class="teal-text center">Vue Weather</h2>
       </div>
       <div class="card-content">
-        <form>
+        <form @submit.prevent="getWeather">
           <div class="field">
             <label for="location">Enter the city</label>
             <input type="text" name="location" v-model="city" placeholder="Enter the city name...">
+            <small class="red-text" v-if="feedback">{{ feedback }}</small>
           </div>
         </form>
       </div>
@@ -19,7 +20,7 @@
         </div>
       </div>
       <div class="card-footer" >
-        <p class="teal-text center">Report for your location:</p>
+        <p class="teal-text center">Weather Report:</p>
         <div class="weather-report">
           <table class="striped">
             <thead>
@@ -113,7 +114,8 @@ export default {
       lat: null,
       lng: null,
       location: null,
-      weather: null
+      weather: null,
+      feedback: null,
     }
   },
   created() {
@@ -127,10 +129,12 @@ export default {
         // Getting weather data
         axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${this.apiKey}`)
         .then(response => {
+          // console.log(response.data)
           this.weather = response.data
+          this.feedback = null
         })
         .catch(err => {
-          console.log(err.message)
+          this.feedback = err.message
         })
 
         // Showing the Location name
@@ -145,6 +149,24 @@ export default {
       })
     } else {
       alert("Could not get Location. Please Try again.")
+    }
+  },
+  methods: {
+    getWeather() {
+      if (this.city) {
+        axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=${this.apiKey}`)
+        .then(response => {
+          // console.log(response.data)
+          this.weather = response.data
+          this.city = null
+          this.feedback = null
+        })
+        .catch(err => {
+          this.feedback = err.message
+        })
+      } else {
+        this.feedback = "You must enter the city name"
+      }
     }
   }
 }
