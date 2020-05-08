@@ -10,6 +10,10 @@
 
 <style>
 
+body {
+  background: #d4d9d1;
+}
+
 #nav {
   padding: 30px;
   display: flex;
